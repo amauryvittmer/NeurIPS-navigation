@@ -1,0 +1,5 @@
+.env
+**/.env
+lecteur/profil.json
+lecteur/data/cache_resumes.json
+__pycache__/

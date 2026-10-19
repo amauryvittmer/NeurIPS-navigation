@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ton profil de lecteur</title>
+<style>
+  :root { --bg:#f7f7f5; --fg:#1d1d1f; --mut:#6b6b70; --card:#fff; --line:#d9d9de; --acc:#2d5bd8; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#16171a; --fg:#ececef; --mut:#9a9aa3; --card:#1e2024; --line:#33353b; --acc:#7c9cff; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:40px 20px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  p.sub { color:var(--mut); margin:0 0 28px; }
+  label { display:block; font-weight:600; margin:22px 0 4px; }
+  small { display:block; color:var(--mut); margin-bottom:8px; }
+  textarea { width:100%; min-height:130px; padding:12px; font:inherit; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:8px; resize:vertical; }
+  .row { display:flex; gap:12px; align-items:center; margin-top:26px; flex-wrap:wrap; }
+  button { font:inherit; padding:10px 18px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--fg); cursor:pointer; }
+  button.main { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+  #msg { color:#c0392b; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ton profil de lecteur</h1>
+  <p class="sub">Les résumés seront rédigés pour toi. Le texte ci-dessous est un profil de départ : modifie-le pour qu'il te corresponde. Tu pourras le changer plus tard en revenant sur cette page (<code>/profil.html</code>).</p>
+
+  <label for="profil">Qui es-tu ?</label>
+  <small>Ton domaine, ce que tu maîtrises, ce qu'il faut t'expliquer.</small>
+  <textarea id="profil"></textarea>
+
+  <label for="focus">Ce que tu veux voir en priorité (facultatif)</label>
+  <small>Par exemple : « Dans idée, commence par les hypothèses de départ du paper. Dans résultat, précise la robustesse (échantillon, contrôles). »</small>
+  <textarea id="focus" style="min-height:90px"></textarea>
+
+  <div class="row">
+    <button class="main" id="ok">Enregistrer et ouvrir le lecteur</button>
+    <button id="defaut" type="button">Remettre le profil par défaut</button>
+    <span id="msg"></span>
+  </div>
+</main>
+<script>
+const DEFAUT = "Le lecteur est doctorant en NLP (traitement automatique des langues) : il connaît très bien les LLM, les architectures Transformer, le pré-entraînement et le fine-tuning, les représentations, la sémantique, les protocoles d'évaluation et les benchmarks usuels du domaine. Ne lui explique jamais les notions de base. Il est moins familier des mathématiques de l'optimisation, de la vision et de la robotique.";
+const $ = id => document.getElementById(id);
+fetch("/api/profil").then(r => r.json()).then(c => { $("profil").value = c.profil || DEFAUT; $("focus").value = c.focus || ""; })
+  .catch(() => { $("profil").value = DEFAUT; });
+$("defaut").onclick = () => { $("profil").value = DEFAUT; $("focus").value = ""; };
+$("ok").onclick = async () => {
+  $("msg").textContent = "";
+  try {
+    const r = await fetch("/profil", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profil: $("profil").value, focus: $("focus").value }) });
+    const j = await r.json();
+    if (j.error) throw new Error(j.error);
+    location.href = "/fils.html";
+  } catch (e) { $("msg").textContent = "Erreur : " + e.message; }
+};
+</script>
+</body>
+</html>

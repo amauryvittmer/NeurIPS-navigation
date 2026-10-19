@@ -1,0 +1,1 @@
+window.__P("156635",{"abs": "", "intro": "", "related": "", "limitations": "", "conclusion": "", "discussion": "", "debut": "", "hyp": [], "arxiv": "", "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-54/issue-3/Gradient-descent-inference-in-empirical-risk-minimization/10.1214/25-AOS2600.short", "fiche": null});

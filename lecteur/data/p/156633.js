@@ -1,0 +1,1 @@
+window.__P("156633",{"abs": "", "intro": "", "related": "", "limitations": "", "conclusion": "", "discussion": "", "debut": "", "hyp": [], "arxiv": "", "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-54/issue-4/DiPMInd--Distance-profile-based-mutual-independence-testing-for-random/10.1214/26-AOS2624.short", "fiche": null});

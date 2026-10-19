@@ -1,0 +1,1 @@
+window.__P("156637",{"abs": "", "intro": "", "related": "", "limitations": "", "conclusion": "", "discussion": "", "debut": "", "hyp": [], "arxiv": "", "url": "https://imstat.org/journals-and-publications/annals-of-statistics/annals-of-statistics-future-papers/", "fiche": null});

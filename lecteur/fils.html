@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fils de réflexion · NeurIPS 2026</title>
+<style>
+:root{--bg:#07080d;--fg:#e8e8ea;--mut:#8b93a3;--line:#262a35;--acc:#7aa2ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0}
+#side,#info{position:fixed;top:10px;bottom:10px;background:rgba(18,21,28,.9);border:1px solid var(--line);border-radius:12px;overflow:auto;backdrop-filter:blur(6px)}
+#side{left:10px;width:290px;display:flex;flex-direction:column;overflow:hidden}#info{right:10px;width:380px;padding:14px 16px}
+#list{overflow:auto;flex:1}.chip{display:inline-block;padding:2px 9px;margin:2px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:12px;user-select:none}
+.chip.on{background:var(--acc);color:#07080d;border-color:var(--acc)}.p.dim{opacity:.35}
+#kw{width:100%;margin-top:6px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#12151c;color:var(--fg)}
+.f{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer}.f:hover,.f.sel{background:#1b2030}
+.f b{font-size:13px;display:block}.f small,.mut{color:var(--mut)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+h3{margin:0 0 4px;font-size:16px;line-height:1.3}h5{margin:12px 0 3px;font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.p{padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.p:hover,.p.sel{background:#1b2030}
+.p i{display:block;font-style:normal;color:var(--mut);font-size:12.5px}.bar{height:3px;background:linear-gradient(90deg,#7aa2ff,#ff9a5a);border-radius:2px;margin-top:3px}
+.clair{background:#1a2236;border:1px solid #2c3a5c;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px;white-space:pre-wrap}
+.clair:empty{display:none}
+details{margin:6px 0}summary{cursor:pointer;color:var(--mut);font-size:12.5px;user-select:none}summary:hover{color:var(--fg)}
+.err{color:#ff9a8a}.err a{color:var(--acc)}
+#q{width:100%;padding:8px 10px;border:0;border-bottom:1px solid var(--line);background:#12151c;color:var(--fg);position:sticky;top:0;z-index:2}
+#hint{position:fixed;left:310px;bottom:10px;color:var(--mut);font-size:12px;pointer-events:none}
+/* carte du bas : fil / paper */
+#card{position:fixed;left:50%;transform:translateX(-50%);bottom:34px;width:max(380px,min(680px,calc(100vw - 740px)));max-height:62vh;background:rgba(18,21,28,.96);border:1px solid var(--line);border-radius:12px;padding:0;display:none;flex-direction:column;overflow:hidden}
+.chead{padding:10px 14px;border-bottom:1px solid var(--line);flex:none}
+.cbody{overflow:auto;padding:6px 14px 14px;flex:1;min-height:0}
+#card .big{font-size:16px;margin:6px 0}#card .nav{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+#card button,.cbody button{background:#1b2030;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:5px 11px;cursor:pointer}
+.ptitle{font-size:15px;font-weight:700;line-height:1.3;margin:10px 0 4px}
+.quote{font-size:12.5px;color:var(--mut);border-left:2px solid var(--line);padding-left:8px;margin:6px 0 4px}
+.sec{margin:14px 0 0;border-left:4px solid var(--c);padding:2px 0 2px 12px}
+.sec>h4{margin:0 0 4px;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--c)}
+.it{margin:0 0 10px}.it .t{font-size:14px;line-height:1.4}.it.main .t{font-size:17px;font-weight:600;line-height:1.35}
+.sub{font-size:13px;margin-top:2px}
+.lab{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-right:7px}
+.cl{font-size:12.5px;color:#9db4e6;margin-top:2px}.cl:empty{display:none}
+.cl::before{content:"EN CLAIR  ";font-size:10px;letter-spacing:.08em;color:#5f78b3;font-weight:700}
+.noclair .cl{display:none}
+.cite{font-size:11.5px;color:var(--mut);font-style:italic;margin-top:2px}.ok{color:#5fd08c;font-style:normal}.warn{color:#ffb86b;font-style:normal}
+.lk{color:var(--acc);cursor:pointer;text-decoration:underline}
+</style></head><body>
+<div id="c"></div>
+<div id="side"><div id="hd"><input id="q" placeholder="Chercher dans les fils…"><div style="padding:6px 8px"><div class="mut" style="font-size:11.5px;margin:2px 4px">THÈMES DES PAPERS (cumulatifs)</div><div id="themes"></div><input id="kw" placeholder="mot libre dans les papers (ex : metacognition)"></div>
+<label class="mut" style="display:block;padding:2px 12px"><input type="checkbox" id="all" checked> montrer tous les rails</label><div class="mut" id="fc" style="padding:2px 12px 6px;font-size:12px"></div></div><div id="list"></div></div>
+<div id="info"><h3>Fils de réflexion</h3><p class="mut">Chaque <b>rail</b> est une idée. Chaque <b>point</b> est un paper qui la reprend, du plus proche de l'énoncé de départ (à gauche) au plus éloigné (à droite). Le rail s'épaissit, change de teinte et plie légèrement quand le propos dérive.<br><br>Un même paper peut être sur plusieurs rails : des traits blancs relient ses copies.<br><br>Choisis un fil à gauche ou clique un rail ou un point. Le résumé du fil s'affiche ici ; celui d'un paper s'affiche dans la carte en bas, au milieu. Glisser = tourner, molette = zoom, <b>← →</b> = avancer, <b>espace</b> = visite guidée.</p></div>
+<div id="card"></div><div id="hint">glisser · molette · clic sur un rail ou un point · ← → · espace</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="data/index.js"></script><script src="data/fils.js"></script>
+<script>var SIMPLE={}</script><script src="data/fils_simple.js" onerror="void 0"></script>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TY={lim:[.97,"limite récurrente"],hyp:[.58,"hypothèse partagée"],opp:[.1,"opposition"]},GAP=2.4;
+const hsl=(h,s,l)=>new THREE.Color().setHSL(((h%1)+1)%1,s,l);
+const simple=f=>SIMPLE[f.question.slice(0,60)]||"";
+const W=()=>innerWidth,H=()=>innerHeight;
+// ---- résumés à la demande (serveur.py), avec cache côté page ----
+const RC={},PR={};
+const keyOf=b=>[b.kind,b.id,b.niveau||"",b.fil===undefined?"":b.fil,b.pos===undefined?"":b.pos].join("|");
+function ask(b){const key=keyOf(b);if(key in RC)return Promise.resolve(RC[key]);if(PR[key])return PR[key];
+  const p=(async()=>{let d;try{const r=await fetch("/resume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});d=await r.json()}
+    catch(_){throw new Error("Serveur de résumés injoignable : lance « python ../serveur.py » depuis lecteur/ et ouvre http://localhost:8000/fils.html")}
+    if(d.error)throw new Error(d.error);return RC[key]=("data" in d?d.data:d.texte)})();
+  PR[key]=p;p.then(()=>{delete PR[key]},()=>{delete PR[key]});return p}
+function charge(el,b,render){render=render||(t=>{el.textContent=t});
+  const k=keyOf(b);if(k in RC){render(RC[k]);return}
+  el.innerHTML='<span class="mut">Génération…</span>';
+  ask(b).then(t=>{if(el.isConnected)render(t)}).catch(e=>{if(!el.isConnected)return;el.innerHTML="";
+    const s=document.createElement("span");s.className="err";s.textContent=e.message+" ";
+    const a=document.createElement("a");a.href="#";a.textContent="Réessayer";a.onclick=ev=>{ev.preventDefault();charge(el,b,render)};s.appendChild(a);el.appendChild(s)})}
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(devicePixelRatio);R.setSize(W(),H());$("c").appendChild(R.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x07080d);scene.fog=new THREE.FogExp2(0x07080d,.01);
+const cam=new THREE.PerspectiveCamera(60,W()/H(),.05,600);
+addEventListener("resize",()=>{R.setSize(W(),H());cam.aspect=W()/H();cam.updateProjectionMatrix()});
+// disposition : un rail par fil, rangés par thème proche
+const base=FILS.map(f=>{let a=0,b=0;f.pts.forEach(p=>{a+=IDX[p.i][3];b+=IDX[p.i][4]});return new THREE.Vector2(a/f.pts.length*9,b/f.pts.length*9)});
+for(let it=0;it<60;it++)for(let a=0;a<base.length;a++)for(let b=a+1;b<base.length;b++){const d=base[a].distanceTo(base[b]);if(d<2.4){const v=base[a].clone().sub(base[b]);if(v.length()<1e-3)v.set(Math.random()-.5,Math.random()-.5);v.setLength((2.4-d)/2);base[a].add(v);base[b].sub(v)}}
+const V=FILS.map((f,k)=>{const n=f.pts.length;return f.pts.map((p,j)=>new THREE.Vector3((j-(n-1)/2)*GAP,base[k].y+.8*p.x,base[k].x))});
+const byP={},inst=[];FILS.forEach((f,k)=>f.pts.forEach((p,j)=>{(byP[p.i]=byP[p.i]||[]).push([k,j]);inst.push([k,j])}));
+// points
+const pg=new THREE.BufferGeometry().setFromPoints(inst.map(([k,j])=>V[k][j]));
+pg.setAttribute("color",new THREE.Float32BufferAttribute(inst.flatMap(([k,j])=>{const c=hsl(TY[FILS[k].type][0]+.22*FILS[k].pts[j].x,.7,.7);return[c.r,c.g,c.b]}),3));
+const pts=new THREE.Points(pg,new THREE.PointsMaterial({size:.35,vertexColors:true,sizeAttenuation:true}));scene.add(pts);
+const hl=new THREE.Points(new THREE.BufferGeometry(),new THREE.PointsMaterial({size:.7,color:0xffffff,sizeAttenuation:true}));scene.add(hl);
+const links=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.4}));scene.add(links);
+const mark=new THREE.Mesh(new THREE.SphereGeometry(.6,16,16),new THREE.MeshBasicMaterial({color:0xffffff,wireframe:true}));mark.visible=false;scene.add(mark);
+// rails : rayon et teinte modulés par la dérive
+const tubes=FILS.map((f,k)=>{
+  const v=V[k],cu=new THREE.CatmullRomCurve3(v,false,"catmullrom",.5),n=v.length,M=n*10,S=6,fr=cu.computeFrenetFrames(M,false),pos=[],col=[],ix=[];
+  for(let a=0;a<=M;a++){const t=a/M,c=cu.getPoint(t),u=t*(n-1),j=Math.min(n-2,Math.floor(u)),x=f.pts[j].x*(1-(u-j))+f.pts[j+1].x*(u-j),r=.1*(.6+1.2*x),cl=hsl(TY[f.type][0]+.22*x,.85,.58);
+    for(let s=0;s<S;s++){const an=s/S*6.2832,N=fr.normals[a],B=fr.binormals[a];
+      pos.push(c.x+r*(Math.cos(an)*N.x+Math.sin(an)*B.x),c.y+r*(Math.cos(an)*N.y+Math.sin(an)*B.y),c.z+r*(Math.cos(an)*N.z+Math.sin(an)*B.z));col.push(cl.r,cl.g,cl.b)}}
+  for(let a=0;a<M;a++)for(let s=0;s<S;s++){const A=a*S+s,B=a*S+(s+1)%S;ix.push(A,B,A+S,B,B+S,A+S)}
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));g.setAttribute("color",new THREE.Float32BufferAttribute(col,3));g.setIndex(ix);
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.3}));m.userData.k=k;scene.add(m);return m});
+// caméra
+const tg=new THREE.Vector3(),gt=new THREE.Vector3();let th=1.2,ph=1.25,rad=60,gr=60,anim=0,gth=0,gph=0;
+const box=new THREE.Box3().setFromPoints(inst.map(([k,j])=>V[k][j]));box.getCenter(gt);tg.copy(gt);gr=rad=box.getSize(new THREE.Vector3()).length()*.8;
+let drag=null,moved=0;
+R.domElement.onpointerdown=e=>{drag=[e.clientX,e.clientY];moved=0;anim=0};
+addEventListener("pointerup",e=>{if(drag&&moved<5)pick(e);drag=null});
+addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);th-=dx*.006;ph=Math.max(.15,Math.min(3,ph-dy*.006));drag=[e.clientX,e.clientY]});
+R.domElement.onwheel=e=>{gr=Math.max(1.5,gr*(1+Math.sign(e.deltaY)*.12))};
+(function loop(){requestAnimationFrame(loop);tg.lerp(gt,.07);rad+=(gr-rad)*.07;if(anim>0){anim--;th+=(gth-th)*.06;ph+=(gph-ph)*.06}
+  cam.position.set(tg.x+rad*Math.sin(ph)*Math.cos(th),tg.y+rad*Math.cos(ph),tg.z+rad*Math.sin(ph)*Math.sin(th));cam.lookAt(tg);R.render(scene,cam)})();
+const ray=new THREE.Raycaster();ray.params.Points.threshold=.4;
+function pick(e){if(e.target!==R.domElement)return;ray.setFromCamera(new THREE.Vector2(e.clientX/W()*2-1,-(e.clientY/H())*2+1),cam);
+  const hp=ray.intersectObject(pts)[0],ht=ray.intersectObjects(tubes.filter(m=>m.visible))[0];
+  if(hp&&(!ht||hp.distance<ht.distance+1)){const[k,j]=inst[hp.index];if(k!==K)fil(k);step(j)}else if(ht)fil(ht.object.userData.k)}
+// état
+let K=-1,J=-1,tour=null,PM=[],MC=[],AUTOSKIP=false;
+const TH=[["LLM",/large language model|\bllms?\b|language model|\bgpt/],["cognition",/cogniti|metacogni|theory of mind|working memory|human-like|psycholog/],["cerveau",/\bbrain|neuroscien|fmri|\beeg\b|cortex|cortical|synap|spiking/],["raisonnement",/reasoning|chain-of-thought|\bcot\b|theorem prov|mathematical|logic/],["agents",/\bagents?\b|agentic|tool[- ]use/],["RL",/reinforcement learning|\brl\b|reward|rlhf|grpo|\bppo\b/],["vision",/image|vision|visual|video|\b3d\b|segmentation|camera/],["multimodal",/multimodal|multi-modal|vision-language|\bvlms?\b|\bmllms?\b/],["génération",/diffusion|generative|flow matching|text-to-image/],["graphes",/graph/],["robotique / monde",/robot|embodied|navigation|manipulation|world model|physical|simulat/],["optimisation",/optimi[sz]|convex|gradient descent|\bsgd\b|bandit|regret|convergence/],["théorie",/theoretical|theorem|we prove|minimax|sample complexity|generali[sz]ation/],["sécurité / éthique",/safety|alignment|jailbreak|adversarial|privacy|fairness|\bbias|attack/],["mémoire / retrieval",/memory|long[- ]context|retrieval|\brag\b/],["benchmark",/benchmark|dataset|leaderboard|evaluation/],["science / santé",/medical|clinical|health|biolog|protein|molecul|drug|chemi|climate|material/],["code",/\bcode\b|coding|program synthesis|software/],["efficacité",/efficien|quantiz|pruning|distillation|compression|sparse|latency|throughput/]];
+const TXT=IDX.map(d=>(d[1]+" "+d[7]).toLowerCase()),TM=TXT.map(t=>TH.map(([,re])=>re.test(t)));
+const act=new Set();let kws=[];
+const filtering=()=>act.size>0||kws.length>0;
+const match=i=>{for(const k of act)if(!TM[i][k])return false;for(const w of kws)if(!TXT[i].includes(w))return false;return true};
+function buildThemes(){TH.forEach(([n],k)=>{const c=document.createElement("span");c.className="chip";c.textContent=n+" · "+TM.reduce((a,r)=>a+(r[k]?1:0),0);
+  c.onclick=()=>{act.has(k)?act.delete(k):act.add(k);c.classList.toggle("on");applyFilter()};$("themes").appendChild(c)})}
+$("kw").oninput=e=>{kws=e.target.value.toLowerCase().split(/\s+/).filter(Boolean);applyFilter()};
+function applyFilter(){PM=FILS.map(f=>f.pts.map(p=>match(p.i)));MC=PM.map(a=>a.filter(Boolean).length);
+  const col=pg.attributes.color;inst.forEach(([k,j],n)=>{const f=FILS[k],c=hsl(TY[f.type][0]+.22*f.pts[j].x,.7,(!filtering()||PM[k][j])?.7:.1);col.setXYZ(n,c.r,c.g,c.b)});col.needsUpdate=true;
+  vis();drawList();if(K>=0)document.querySelectorAll("#info .p[data-a]").forEach(n=>n.classList.toggle("dim",filtering()&&!PM[K][+n.dataset.a]))}
+function vis(){tubes.forEach((m,a)=>{m.visible=a===K||($("all").checked&&(!filtering()||MC[a]>0));m.material.opacity=a===K?1:(filtering()?.6:.3)})}$("all").onchange=vis;
+function fil(k){K=k;J=-1;clearInterval(tour);tour=null;const f=FILS[k];vis();
+  hl.geometry.dispose();hl.geometry=new THREE.BufferGeometry().setFromPoints(V[k]);
+  const seg=[];f.pts.forEach((p,j)=>(byP[p.i]||[]).forEach(([k2,j2])=>{if(k2!==k){seg.push(V[k][j],V[k2][j2])}}));links.geometry.dispose();links.geometry=new THREE.BufferGeometry().setFromPoints(seg);
+  const c=new THREE.Box3().setFromPoints(V[k]);gt.copy(c.getCenter(new THREE.Vector3()));gr=Math.max(10,c.getSize(new THREE.Vector3()).x*.7);gth=1.5708;gph=1.5;anim=90;mark.visible=false;
+  $("info").innerHTML=`<h3><span class="dot" style="background:#${hsl(TY[f.type][0],.85,.58).getHexString()}"></span>${esc(f.question.slice(0,90))}…</h3><div class="mut">${TY[f.type][1]} · ${f.n} papers</div>
+  <h5>Résumé du fil pour toi · NLP</h5><div class="clair" id="fexp"></div>
+  <details id="fsimple"><summary>Version plus simple</summary><div class="clair" id="fsimp"></div></details>
+  <h5>Le long du rail (début → fin)</h5>`+f.pts.map((p,a)=>`<div class="p${filtering()&&!PM[k][a]?" dim":""}" data-a="${a}"><b>${esc(IDX[p.i][1])}</b><i>${esc(p.t.slice(0,200))}</i><div class="bar" style="width:${8+p.x*92}%"></div></div>`).join("")+`<div id="cross"></div>`;
+  charge($("fexp"),{kind:"fil",id:k,cle:f.question.slice(0,60),niveau:"expert"});
+  const ds=$("fsimple");ds.ontoggle=()=>{if(ds.open&&!ds.dataset.done){ds.dataset.done=1;const s=simple(f);if(s)$("fsimp").textContent=s;else charge($("fsimp"),{kind:"fil",id:k,cle:f.question.slice(0,60),niveau:"simple"})}};
+  $("info").querySelectorAll(".p").forEach(n=>n.onclick=()=>step(+n.dataset.a));$("info").scrollTop=0;drawList();card()}
+function step(a,auto){const f=FILS[K];a=Math.max(0,Math.min(f.pts.length-1,a));J=a;AUTOSKIP=!!auto;const i=f.pts[a].i;gt.copy(V[K][a]);gr=8;mark.position.copy(V[K][a]);mark.visible=true;
+  document.querySelectorAll("#info .p[data-a]").forEach(n=>{const on=+n.dataset.a===a;n.classList.toggle("sel",on);if(on)n.scrollIntoView({block:"nearest"})});
+  const o=(byP[i]||[]).filter(([k])=>k!==K);$("cross").innerHTML=o.length?`<h5>Ce paper est aussi sur ces fils</h5>`+o.map(([k,j])=>`<div class="p" data-k="${k}" data-j="${j}"><b>${esc(FILS[k].question.slice(0,80))}…</b><i>${TY[FILS[k].type][1]}</i></div>`).join(""):"";
+  $("cross").querySelectorAll(".p").forEach(n=>n.onclick=()=>{fil(+n.dataset.k);step(+n.dataset.j)});card()}
+function goPaper(id){const t=byP[id];if(!t)return;const s=t.find(([k])=>k===K)||t[0];if(s[0]!==K)fil(s[0]);step(s[1])}
+function toggleClair(){$("card").classList.toggle("noclair")}
+// ---- carte du bas : résumé hiérarchisé du paper ----
+const SRC={abs:"abstract",intro:"introduction",limitations:"section limites",conclusion:"conclusion"};
+const item=(x,main)=>`<div class="it${main?" main":""}"><div class="t">${x.lab?`<span class="lab">${esc(x.lab)}</span>`:""}${esc(x.t)}</div>${x.clair?`<div class="cl">${esc(x.clair)}</div>`:""}${x.cite?`<div class="cite">« ${esc(x.cite)} » ${x.src?`<span class="ok">✓ retrouvé : ${esc(SRC[x.src]||x.src)}</span>`:`<span class="warn">⚠ extrait non retrouvé dans le texte</span>`}</div>`:""}</div>`;
+function renderLiens(lk,r){const L=(r&&r.liens)||[];
+  if(!L.length){lk.innerHTML='<div class="mut">Aucun paper des fils ne traite clairement ces limites.</div>';return}
+  lk.innerHTML=L.map(l=>`<div class="it"><div class="t"><span class="lab">répond à la limite ${l.limite}</span>${byP[l.id]?`<a class="lk" data-i="${l.id}">${esc(IDX[l.id][1])}</a>`:esc(IDX[l.id][1])}</div><div class="sub">${esc(l.pourquoi)}</div><div class="cl">${esc(l.clair)}</div></div>`).join("");
+  lk.querySelectorAll(".lk").forEach(a=>a.onclick=()=>goPaper(+a.dataset.i))}
+function renderPap(el,d,i){
+  const row=(l,x,m)=>x&&x.t?item({...x,lab:l},m):"",lim=d.limites||[],app=d.apports||[];
+  el.innerHTML=
+  `<div class="sec" style="--c:#7aa2ff"><h4>1 · La réflexion du paper</h4>${row("Problème",d.probleme)}${row("Idée centrale",d.idee,1)}${row("Résultat",d.resultat)}</div>
+  <div class="sec" style="--c:#ff9a5a"><h4>2 · Limites reconnues par le paper</h4><div class="cl">Ce que les auteurs disent eux-mêmes ne pas avoir réussi, testé ou couvert.</div>${lim.length?lim.map((x,n)=>item({...x,lab:"Limite "+(n+1)})).join(""):'<div class="mut">Le paper ne déclare aucune limite dans le texte disponible.</div>'}</div>
+  <div class="sec" style="--c:#5fd08c"><h4>3 · Apports annoncés par le paper pour le NLP</h4><div class="cl">Ce que les auteurs présentent comme utile pour le langage ou la recherche en NLP. Chaque point est appuyé par un extrait du paper.</div>${app.length?app.map((x,n)=>item({...x,lab:"Apport "+(n+1)})).join(""):'<div class="mut">Le paper n\'affirme aucun apport concernant le langage ou le NLP.</div>'}</div>
+  <div class="sec" style="--c:#c58bff"><h4>4 · Autres papiers qui traitent ces limites</h4><div class="cl">Papiers des fils dont l'abstract dit s'attaquer à ces limites. Clique sur un titre pour aller à ce paper.</div><div id="lnk"></div></div>`;
+  const lk=el.querySelector("#lnk"),lv=lim.filter(l=>l.src);
+  if(!lim.length)lk.innerHTML='<div class="mut">Pas de limite déclarée : rien à chercher.</div>';
+  else if(!lv.length)lk.innerHTML='<div class="mut">Aucune limite n\'a pu être vérifiée dans le texte : recherche non lancée.</div>';
+  else charge(lk,{kind:"liens",id:i,niveau:"expert"},r=>renderLiens(lk,r))}
+function fillSum(i){const el=$("sum");if(!el)return;const f=FILS[K];
+  const bs={kind:"pap",id:i,niveau:"expert"},bc={kind:"ctx",id:i,fil:K,pos:J,cle:f.question.slice(0,60)};
+  const go=()=>{charge(el,bs,d=>renderPap(el,d,i));const cx=$("ctx");if(cx)charge(cx,bc)};
+  if(AUTOSKIP&&!(keyOf(bs) in RC)){el.innerHTML="";const b=document.createElement("button");b.textContent="Générer le résumé de ce paper";b.onclick=()=>{AUTOSKIP=false;go()};el.appendChild(b);return}
+  go()}
+function card(){const c=$("card");if(K<0){c.style.display="none";return}const f=FILS[K];c.style.display="flex";
+  if(J<0){c.innerHTML=`<div class="chead"><div class="mut">${TY[f.type][1]} · ${f.n} papers</div><div class="nav"><button onclick="step(0)">Commencer →</button><button onclick="visite()">▶ Visite guidée</button></div></div><div class="cbody"><div class="big">${esc(simple(f)||f.question)}</div></div>`;return}
+  const p=f.pts[J],i=p.i;
+  c.innerHTML=`<div class="chead"><div class="mut">${J+1} / ${f.pts.length} · ${p.x<.33?"proche de l'énoncé de départ":p.x<.66?"formulation qui dérive":"formulation très éloignée"}</div><div class="nav"><button onclick="step(J-1)">←</button><button onclick="step(J+1)">→</button><button onclick="visite()">${tour?"⏸ Pause":"▶ Visite"}</button><button onclick="toggleClair()">Aa En clair</button></div></div>
+  <div class="cbody"><div class="ptitle">${esc(IDX[i][1])}</div><div class="quote">Dans ce fil : « ${esc(p.t)} »<div class="cl" id="ctx"></div></div><div class="bar" style="width:${8+p.x*92}%"></div><div id="sum"></div></div>`;
+  fillSum(i)}
+function visite(){if(tour){clearInterval(tour);tour=null;card();return}if(K<0)return;const n=FILS[K].pts.length;if(J>=n-1)J=-1;step(J+1,true);
+  tour=setInterval(()=>{if(J>=n-1){clearInterval(tour);tour=null;card();return}step(J+1,true)},4500);card()}
+addEventListener("keydown",e=>{if(K<0||e.target.id==="q"||e.target.id==="kw")return;if(e.key===" "){e.preventDefault();visite()}if(e.key==="ArrowRight")step(J+1);if(e.key==="ArrowLeft")step(Math.max(0,J-1))});
+function drawList(){const q=$("q").value.toLowerCase();$("list").innerHTML=FILS.map((f,k)=>[f,k]).filter(([f,k])=>(f.titre+" "+f.question).toLowerCase().includes(q)&&(!filtering()||MC[k]>0)).sort((a,b)=>filtering()?MC[b[1]]-MC[a[1]]:0).map(([f,k])=>
+  `<div class="f${k===K?" sel":""}" data-k="${k}"><b><span class="dot" style="background:#${hsl(TY[f.type][0],.85,.58).getHexString()}"></span>${esc(f.question.slice(0,85))}…</b><small>${TY[f.type][1]} · ${filtering()?MC[k]+" / ":""}${f.n} papers</small></div>`).join("");
+  $("list").querySelectorAll(".f").forEach(n=>n.onclick=()=>fil(+n.dataset.k));$("fc").textContent=$("list").children.length+" fils"+(filtering()?" · "+MC.reduce((a,b)=>a+b,0)+" papers correspondants":"")}
+$("q").oninput=drawList;buildThemes();applyFilter();
+</script></body></html>
